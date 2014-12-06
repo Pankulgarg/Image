@@ -1,0 +1,44 @@
+//MATLAB code
+
+vid=videoinput('winvideo');
+vid.ReturnedColorSpace='rgb';
+i=0;
+while(i<=100)
+a=getsnapshot(vid);
+b=a;
+figure,imshow(b);
+for i=1:1:720
+    for j=1:1:1280
+        if(a(i,j,1)>80 && a(i,j,2)>40 && a(i,j,3)==0)
+            b(i,j,1)=255;
+            b(i,j,2)=255;
+            b(i,j,3)=255;
+        else
+            b(i,j,1)=0;
+            b(i,j,2)=0;
+            b(i,j,3)=0;
+        end
+    end
+end
+figure,imshow(b);
+agray=rgb2gray(b);
+figure,imshow(agray);
+level=graythresh(agray);
+abw=im2bw(agray,level);
+abw=bwareaopen(abw,500);
+[l,num]=bwlabel(abw,8);
+num
+stats=regionprops(l,'Eccentricity','BoundingBox','Solidity');
+temp=0
+index=999
+for i=1:num
+    if(stats(i).Solidity>temp)
+        temp=stats(i).Solidity
+        index=i
+    end
+end
+imshow(a);
+hold on
+rectangle('Position',stats(index).BoundingBox);
+i=i+1;
+end
